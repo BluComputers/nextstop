@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Service 5 - Go To Town</title>
+    <style>
+        :root {
+            --gtt-yellow: #ffd700;
+            --gtt-dark: #121212;
+            --gtt-dark-blue: #002d5a; /* Classic Transport Dark Blue */
+            --gtt-green: #2e7d32;
+            --gtt-red: #c62828;
+            --gtt-grey: #333;
+        }
+
+        body { 
+            font-family: 'Segoe UI', Roboto, sans-serif; 
+            background: var(--gtt-dark); 
+            color: white; 
+            margin: 0; 
+            padding: 10px; 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+            box-sizing: border-box;
+        }
+
+        /* Branding Header */
+        .header-section {
+            width: 100%;
+            max-width: 800px;
+            margin-bottom: 15px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+
+        .logo-box {
+            background: var(--gtt-dark-blue);
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            border-bottom: 4px solid var(--gtt-yellow);
+        }
+
+        .logo-box img {
+            height: 70px;
+            width: auto;
+            filter: drop-shadow(0px 0px 2px rgba(255,255,255,0.5));
+        }
+
+        .header-branding { 
+            background: var(--gtt-yellow); 
+            color: #000; 
+            padding: 10px; 
+            font-weight: 900; 
+            font-size: 1.2rem; 
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Expanded Display */
+        #display { 
+            background: #000; 
+            border: 4px solid #333; 
+            padding: 60px 20px; /* Increased padding for longer look */
+            border-radius: 15px; 
+            margin-bottom: 20px; 
+            width: 95%;
+            max-width: 800px;
+            box-shadow: inset 0 0 20px rgba(255,215,0,0.05);
+            flex-grow: 0.2; /* Helps it feel larger on screen */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .label { 
+            color: var(--gtt-yellow); 
+            font-size: 1.2rem; 
+            text-transform: uppercase; 
+            letter-spacing: 4px; 
+            margin-bottom: 20px; 
+        }
+
+        #stop-name { 
+            font-size: 3rem; /* Larger font */
+            font-weight: bold; 
+            color: #fff; 
+            line-height: 1.1; 
+            text-shadow: 0 0 10px rgba(255,255,255,0.2);
+        }
+
+        /* Control Layout */
+        .controls-grid {
+            display: grid;
+            grid-template-columns: 80px 1fr 80px; /* Square buttons on sides */
+            gap: 15px;
+            width: 95%;
+            max-width: 800px;
+            align-items: stretch;
+        }
+
+        button { 
+            border: none; 
+            border-radius: 12px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        /* Next Stop Button - Large and Central */
+        #next-btn { 
+            background: var(--gtt-green); 
+            font-size: 2rem; 
+            padding: 40px;
+            box-shadow: 0 6px 0 #1b5e20;
+        }
+        #next-btn:active { transform: translateY(4px); box-shadow: none; }
+
+        /* Small Square Buttons */
+        .sq-btn {
+            width: 80px;
+            height: 80px;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+        }
+
+        #skip-btn { background: var(--gtt-grey); }
+        #reset-btn { background: var(--gtt-red); }
+
+        /* GPS Button stays wide below */
+        #gps-btn { 
+            background: #1565c0; 
+            width: 95%;
+            max-width: 800px;
+            margin-top: 15px;
+            padding: 15px;
+            font-size: 1rem;
+        }
+        
+        .status-area { 
+            margin-top: auto; 
+            padding: 20px;
+            display: flex; 
+            justify-content: space-between; 
+            font-size: 0.9rem; 
+            color: #666; 
+            width: 100%;
+            max-width: 800px; 
+        }
+
+        .gps-active { color: #4caf50; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div class="header-section">
+        <div class="logo-box">
+            <img src="https://www.gtt-online.co.uk/media/2193/logo.png" alt="Go To Town Logo">
+        </div>
+        <div class="header-branding">
+            Welcome To Service 5 From Go To Town
+        </div>
+    </div>
+
+    <div id="display">
+        <div class="label">Next Stop</div>
+        <div id="stop-name">Ready To Depart</div>
+    </div>
+
+    <div class="controls-grid">
+        <button id="skip-btn" class="sq-btn" onclick="skipStop()">Skip<br>Stop</button>
+        
+        <button id="next-btn" onclick="manualNext()">NEXT STOP</button>
+        
+        <button id="reset-btn" class="sq-btn" onclick="resetRoute()">Reset<br>Route</button>
+    </div>
+
+    <button id="gps-btn" onclick="toggleGPS()">ENABLE GPS TRACKING</button>
+
+    <div class="status-area">
+        <span id="counter">Stop: 0 / 19</span>
+        <span id="gps-status">GPS: OFF</span>
+    </div>
+
+    <script>
+        const stops = [
+            ["Bus Station Kings Lynn", 52.7533, 0.4005], ["Kettlewell Lane", 52.7554, 0.4035],
+            ["Highgate School", 52.7562, 0.4093], ["King Edward VII School", 52.7578, 0.4135],
+            ["Tesco Gaywood", 52.7600, 0.4225], ["King John Avenue", 52.7592, 0.4278],
+            ["King's Lynn Academy", 52.7575, 0.4285], ["Almshouses", 52.7565, 0.4288],
+            ["Raynham Close", 52.7558, 0.4302], ["Raleigh Road", 52.7565, 0.4325],
+            ["Hall View Road", 52.7578, 0.4338], ["Oak Circle", 52.7590, 0.4320],
+            ["Leicester Avenue", 52.7605, 0.4305], ["Bishops Road", 52.7618, 0.4285],
+            ["Henry Bell Close", 52.7610, 0.4250], ["Tesco Gaywood", 52.7598, 0.4220],
+            ["The Woolpack", 52.7572, 0.4115], ["St Katherines Court", 52.7555, 0.4045],
+            ["Railway Station", 52.7538, 0.4030]
+        ];
+
+        let currentIndex = -1;
+        let gpsActive = false;
+        let watchId = null;
+
+        function updateDisplay(shouldSpeak) {
+            if (currentIndex >= 0 && currentIndex < stops.length) {
+                const name = stops[currentIndex][0];
+                document.getElementById('stop-name').innerText = name;
+                document.getElementById('counter').innerText = `Stop: ${currentIndex + 1} / ${stops.length}`;
+                if (shouldSpeak) speak(`Next stop: ${name}`);
+            } else if (currentIndex >= stops.length) {
+                document.getElementById('stop-name').innerText = "End of Route";
+            }
+        }
+
+        function manualNext() {
+            if (currentIndex < stops.length - 1) {
+                currentIndex++;
+                updateDisplay(true);
+            }
+        }
+
+        function skipStop() {
+            if (currentIndex < stops.length - 1) {
+                currentIndex++;
+                updateDisplay(false); 
+            }
+        }
+
+        function resetRoute() {
+            if(confirm("Reset the route?")) {
+                currentIndex = -1;
+                document.getElementById('stop-name').innerText = "Ready To Depart";
+                document.getElementById('counter').innerText = `Stop: 0 / ${stops.length}`;
+                window.speechSynthesis.cancel();
+            }
+        }
+
+        function toggleGPS() {
+            const btn = document.getElementById('gps-btn');
+            const status = document.getElementById('gps-status');
+            if (!gpsActive) {
+                if ("geolocation" in navigator) {
+                    watchId = navigator.geolocation.watchPosition(checkLocation, null, {enableHighAccuracy: true});
+                    gpsActive = true;
+                    btn.innerText = "DISABLE GPS TRACKING";
+                    status.innerText = "GPS: ACTIVE";
+                    status.classList.add("gps-active");
+                }
+            } else {
+                navigator.geolocation.clearWatch(watchId);
+                gpsActive = false;
+                btn.innerText = "ENABLE GPS TRACKING";
+                status.innerText = "GPS: OFF";
+                status.classList.remove("gps-active");
+            }
+        }
+
+        function checkLocation(pos) {
+            const lat = pos.coords.latitude;
+            const lon = pos.coords.longitude;
+            const nextIdx = currentIndex + 1;
+            if (nextIdx < stops.length) {
+                const dist = Math.sqrt(Math.pow(lat - stops[nextIdx][1], 2) + Math.pow(lon - stops[nextIdx][2], 2));
+                if (dist < 0.0007) { 
+                    currentIndex = nextIdx;
+                    updateDisplay(true);
+                }
+            }
+        }
+
+        function speak(text) {
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'en-GB';
+            utterance.rate = 0.85;
+            window.speechSynthesis.speak(utterance);
+        }
+    </script>
+</body>
+</html>
