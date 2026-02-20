@@ -7,11 +7,12 @@
     <style>
         :root {
             --gtt-yellow: #ffd700;
-            --gtt-dark: #121212;
+            --gtt-dark: #1c1a8a;
             --gtt-dark-blue: #002d5a;
             --gtt-green: #2e7d32;
             --gtt-red: #c62828;
             --gtt-grey: #333;
+            --gtt-orange: #ff9800; /* New Orange for safety buttons */
         }
 
         body { 
@@ -89,6 +90,7 @@
             align-items: center;
             padding: 15px;
             background: var(--gtt-dark);
+            overflow-y: auto;
         }
 
         .header-section {
@@ -137,6 +139,10 @@
             width: 95%;
             max-width: 700px;
             text-align: center;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
 
         .label { color: var(--gtt-yellow); font-size: 1rem; text-transform: uppercase; letter-spacing: 4px; margin-bottom: 10px; }
@@ -148,13 +154,35 @@
             gap: 15px;
             width: 95%;
             max-width: 700px;
+            margin-bottom: 20px;
         }
 
-        button { border: none; border-radius: 12px; cursor: pointer; font-weight: bold; color: white; }
+        /* --- SAFETY BUTTONS SECTION --- */
+        .safety-section {
+            width: 95%;
+            max-width: 700px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #444;
+        }
+
+        button { border: none; border-radius: 12px; cursor: pointer; font-weight: bold; color: white; transition: 0.2s; }
+        button:active { transform: scale(0.95); }
+
         #next-btn { background: var(--gtt-green); font-size: 1.8rem; padding: 30px; box-shadow: 0 6px 0 #1b5e20; }
         .sq-btn { width: 80px; height: 80px; font-size: 0.8rem; text-transform: uppercase; }
         #skip-btn { background: var(--gtt-grey); }
         #reset-btn { background: var(--gtt-red); }
+        
+        .safety-btn {
+            background: var(--gtt-orange);
+            padding: 20px 10px;
+            font-size: 1.5rem;
+            box-shadow: 0 4px 0 #e68a00;
+        }
+
         #gps-btn { background: #1565c0; width: 95%; max-width: 700px; margin-top: 15px; padding: 12px; font-size: 1rem; }
         
         .status-area { margin-top: auto; padding: 10px; display: flex; justify-content: space-between; font-size: 0.8rem; color: #666; width: 100%; max-width: 700px; }
@@ -185,7 +213,7 @@
         </div>
 
         <div id="display">
-            <div class="label">Next Stop</div>
+            <div class="label" id="display-label">Next Stop</div>
             <div id="stop-name">Ready To Depart</div>
         </div>
 
@@ -193,6 +221,13 @@
             <button id="skip-btn" class="sq-btn" onclick="skipStop()">Skip<br>Stop</button>
             <button id="next-btn" onclick="manualNext()">NEXT STOP</button>
             <button id="reset-btn" class="sq-btn" onclick="resetRoute()">Reset<br>Route</button>
+        </div>
+
+        <div class="safety-section">
+            <button class="safety-btn" onclick="safetyNotice('Please remain seated')">1</button>
+            <button class="safety-btn" onclick="safetyNotice('Please mind the step')">2</button>
+            <button class="safety-btn" onclick="safetyNotice('Caution - Wet Floor')">3</button>
+            <button class="safety-btn" onclick="clearNotice()">4</button>
         </div>
 
         <button id="gps-btn" onclick="toggleGPS()">ENABLE GPS TRACKING</button>
@@ -204,6 +239,7 @@
     </div>
 
     <script>
+        // ROUTE DATA (As established previously)
         const routeData = {
             service5: {
                 shortName: "Route 5",
@@ -283,6 +319,7 @@
         let currentIndex = -1;
         let gpsActive = false;
         let watchId = null;
+        let noticeActive = false;
 
         function renderStopList() {
             const container = document.getElementById('stop-list-container');
@@ -324,6 +361,7 @@
             const stops = routeData[currentRouteKey].stops;
             if (currentIndex >= 0 && currentIndex < stops.length) {
                 const name = stops[currentIndex][0];
+                document.getElementById('display-label').innerText = "Next Stop";
                 document.getElementById('stop-name').innerText = name;
                 document.getElementById('counter').innerText = `Stop: ${currentIndex + 1} / ${stops.length}`;
                 if (shouldSpeak) speak(`Next stop: ${name}`);
@@ -331,6 +369,24 @@
                 document.getElementById('stop-name').innerText = "End of Route";
             }
             renderStopList();
+        }
+
+        // SAFETY NOTICE FUNCTIONS
+        function safetyNotice(msg) {
+            noticeActive = true;
+            document.getElementById('display-label').innerText = "Information";
+            document.getElementById('stop-name').innerText = msg;
+            speak(msg);
+        }
+
+        function clearNotice() {
+            noticeActive = false;
+            if (currentIndex === -1) {
+                document.getElementById('display-label').innerText = "Next Stop";
+                document.getElementById('stop-name').innerText = "Ready To Depart";
+            } else {
+                updateDisplay(false);
+            }
         }
 
         function manualNext() {
@@ -350,6 +406,7 @@
         function resetRoute(ask = true) {
             if(!ask || confirm("Reset current route?")) {
                 currentIndex = -1;
+                document.getElementById('display-label').innerText = "Next Stop";
                 document.getElementById('stop-name').innerText = "Ready To Depart";
                 document.getElementById('counter').innerText = `Stop: 0 / ${routeData[currentRouteKey].stops.length}`;
                 window.speechSynthesis.cancel();
@@ -386,8 +443,6 @@
             if (nextIdx < stops.length) {
                 const targetLat = stops[nextIdx][2];
                 const targetLon = stops[nextIdx][3];
-                
-                // Using Haversine or simple distance for trigger (approx 50-70 meters)
                 const dist = Math.sqrt(Math.pow(lat - targetLat, 2) + Math.pow(lon - targetLon, 2));
                 
                 if (dist < 0.0007) { 
@@ -399,7 +454,6 @@
 
         function speak(text) {
             window.speechSynthesis.cancel();
-            // Optional: Chime sound here
             const utterance = new SpeechSynthesisUtterance(text);
             utterance.lang = 'en-GB';
             utterance.rate = 0.85;
