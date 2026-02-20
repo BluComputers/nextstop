@@ -11,6 +11,8 @@
             --gtt-yellow: #ffd700;
             --gtt-blue: #1c1a8a;
             --bg-color: #050505;
+            --stop-upcoming: #87CEEB; /* Light Blue */
+            --stop-passed: #00FF00;   /* Green */
         }
 
         body {
@@ -30,8 +32,7 @@
             background: var(--gtt-blue);
             display: flex; align-items: center; justify-content: space-between;
             padding: 0 40px; border-bottom: 6px solid var(--gtt-yellow);
-            position: relative;
-            z-index: 10;
+            position: relative; z-index: 10;
         }
         .logo img { height: 70px; }
         .route-display-box { text-align: right; margin-right: 60px; }
@@ -52,7 +53,7 @@
         }
         #driver-panel.active { right: 0; }
         .control-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; color: #aaa; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; }
+        label { display: block; margin-bottom: 5px; color: #aaa; font-size: 0.75rem; text-transform: uppercase; }
         select, .btn { width: 100%; padding: 14px; border-radius: 8px; border: none; font-size: 1rem; font-weight: bold; cursor: pointer; }
         select { background: #333; color: white; margin-bottom: 10px; }
         .btn-start { background: #2e7d32; color: white; margin-bottom: 10px; }
@@ -66,7 +67,7 @@
         .timeline-item.next { opacity: 1; color: var(--gtt-yellow); transform: scale(1.05); }
         .dot { width: 16px; height: 16px; background: #fff; border-radius: 50%; margin-right: 20px; flex-shrink: 0; }
         .timeline-item.next .dot { background: var(--gtt-yellow); box-shadow: 0 0 15px var(--gtt-yellow); }
-        .stop-text { font-size: 1.2rem; font-weight: 600; line-height: 1.2; }
+        .stop-text { font-size: 1.2rem; font-weight: 600; }
 
         /* --- MAIN DISPLAY --- */
         main { grid-row: 2; grid-column: 2; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 40px; }
@@ -74,15 +75,20 @@
         #current-stop-name { font-size: 6rem; font-weight: 900; line-height: 1; margin: 0; text-transform: uppercase; }
 
         /* --- MAP --- */
-        #map-container { grid-row: 2; grid-column: 3; background: #000; border-left: 2px solid #222; }
-        #map { height: 100%; width: 100%; filter: brightness(0.8) contrast(1.2); }
+        #map-container { grid-row: 2; grid-column: 3; background: #000; border-left: 2px solid #222; position: relative; }
+        #map { height: 100%; width: 100%; }
+        
+        /* High Visibility Road/Text Filter for Map */
+        .leaflet-tile-pane {
+            filter: brightness(1.3) contrast(1.2) saturate(0.2);
+        }
 
         /* --- FOOTER TICKER --- */
         footer { grid-column: 1 / -1; background: #000; border-top: 2px solid #222; display: flex; align-items: center; overflow: hidden; }
         .ticker-wrap { width: 100%; overflow: hidden; }
         .ticker-move {
             display: inline-block; white-space: nowrap; padding-right: 100%;
-            animation: ticker 40s linear infinite; font-size: 1.8rem; color: var(--gtt-yellow); font-weight: 500;
+            animation: ticker 40s linear infinite; font-size: 1.8rem; color: var(--gtt-yellow);
         }
         @keyframes ticker {
             0% { transform: translate3d(0, 0, 0); }
@@ -118,7 +124,6 @@
     <button id="gps-btn" class="btn btn-gps" onclick="toggleGPS()">ENABLE DEVICE GPS</button>
     <button class="btn btn-start" onclick="startRoute()">START ROUTE</button>
     <button class="btn btn-end" onclick="endRoute()">END ROUTE</button>
-    <p style="color:#666; font-size: 0.7rem; text-align: center; margin-top: 10px;">Device Tracking Mode Active</p>
 </div>
 
 <div id="stop-timeline"></div>
@@ -133,7 +138,7 @@
 <footer>
     <div class="ticker-wrap">
         <div class="ticker-move" id="ticker-text">
-            Welcome to Go To Town. Please ensure you have a valid ticket or contactless payment ready for inspection. • Remain seated until the vehicle has come to a complete stop. • This service features automated GPS-linked stop announcements.
+            Welcome to Go To Town. Please ensure you have a valid ticket or contactless payment ready. • Please remain seated until the bus has stopped. • Automated next stop announcements are active.
         </div>
     </div>
 </footer>
@@ -144,16 +149,16 @@
             ["Bus Station Kings Lynn", 52.7533, 0.4005], ["Kettlewell Lane", 52.7554, 0.4035], ["Highgate School", 52.7562, 0.4093], ["King Edward VII School", 52.7578, 0.4135], ["Tesco Gaywood", 52.7600, 0.4225], ["Railway Station", 52.7538, 0.4030], ["Bus Station", 52.7533, 0.4005]
         ]},
         northlynn2: { num: "2", name: "North Lynn", stops: [
-            ["Transport Interchange", 52.7533, 0.4005], ["Austin Fields", 52.7575, 0.4010], ["Burkitt Street", 52.7588, 0.3995], ["Townsend Terrace", 52.7610, 0.3980], ["Smith Avenue", 52.7635, 0.3950], ["Turbus Road", 52.7650, 0.3930], ["St Edmundsbury Road", 52.7665, 0.3920], ["Estuary Close", 52.7680, 0.3910], ["Nottingham Road", 52.7660, 0.3950], ["Lady Jane Grey Road", 52.7645, 0.3980], ["No.1", 52.7630, 0.4000], ["Reid Way", 52.7620, 0.4020], ["Garden Court", 52.7605, 0.4015], ["Chadwick Square", 52.7590, 0.3985], ["Railway Station", 52.7538, 0.4030], ["Bus Station", 52.7533, 0.4005]
+            ["Transport Interchange", 52.7533, 0.4005], ["Austin Fields", 52.7575, 0.4010], ["Burkitt Street", 52.7588, 0.3995], ["Townsend Terrace", 52.7610, 0.3980], ["Smith Avenue", 52.7635, 0.3950], ["Turbus Road", 52.7650, 0.3930], ["St Edmundsbury Road", 52.7665, 0.3920], ["Estuary Close", 52.7680, 0.3910], ["Nottingham Road", 52.7660, 0.3950], ["Lady Jane Grey Road", 52.7645, 0.3980], ["Railway Station", 52.7538, 0.4030], ["Bus Station", 52.7533, 0.4005]
         ]},
         service4: { num: "4", name: "The Grange", stops: [
-            ["Bus Station", 52.7533, 0.4005], ["Kettlewell Lane", 52.7554, 0.4035], ["Highgate School", 52.7562, 0.4093], ["King Edward VII School", 52.7578, 0.4135], ["Tesco", 52.7600, 0.4225], ["Lavender Road", 52.7612, 0.4210], ["Railway Station", 52.7538, 0.4030], ["Bus Station", 52.7533, 0.4005]
+            ["Bus Station", 52.7533, 0.4005], ["Kettlewell Lane", 52.7554, 0.4035], ["Highgate School", 52.7562, 0.4093], ["King Edward VII School", 52.7578, 0.4135], ["Tesco", 52.7600, 0.4225], ["Railway Station", 52.7538, 0.4030], ["Bus Station", 52.7533, 0.4005]
         ]},
         service3: { num: "3", name: "N & S Wootton", stops: [
-            ["Bus Station", 52.7533, 0.4005], ["Kettlewell Lane", 52.7554, 0.4035], ["Highgate School", 52.7562, 0.4093], ["Railway Station", 52.7538, 0.4030], ["Bus Station", 52.7533, 0.4005]
+            ["Bus Station", 52.7533, 0.4005], ["Kettlewell Lane", 52.7554, 0.4035], ["Railway Station", 52.7538, 0.4030], ["Bus Station", 52.7533, 0.4005]
         ]},
         service3h: { num: "3H", name: "Industrial Loop", stops: [
-            ["Bus Station", 52.7533, 0.4005], ["Austin Fields", 52.7575, 0.4010], ["Retail Park", 52.7585, 0.4080], ["Bergen Way", 52.7620, 0.4120], ["Railway Station", 52.7538, 0.4030], ["Bus Station", 52.7533, 0.4005]
+            ["Bus Station", 52.7533, 0.4005], ["Austin Fields", 52.7575, 0.4010], ["Retail Park", 52.7585, 0.4080], ["Railway Station", 52.7538, 0.4030], ["Bus Station", 52.7533, 0.4005]
         ]}
     };
 
@@ -162,10 +167,12 @@
     let gpsActive = false;
     let watchId = null;
     let map, deviceMarker;
+    let stopMarkers = [];
     let announcedStops = new Set();
 
     function initMap() {
         map = L.map('map', {zoomControl: false, attributionControl: false}).setView([52.7533, 0.4005], 16);
+        // Using Dark Matter Carto tiles for high road contrast
         L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(map);
         deviceMarker = L.marker([52.7533, 0.4005], {
             icon: L.divIcon({ className: 'device-icon', iconSize: [18, 18] })
@@ -174,11 +181,30 @@
 
     function toggleDriverPanel() { document.getElementById('driver-panel').classList.toggle('active'); }
 
+    function clearStopMarkers() {
+        stopMarkers.forEach(m => map.removeLayer(m));
+        stopMarkers = [];
+    }
+
     function startRoute() {
         const key = document.getElementById('route-select').value;
         currentRoute = routeData[key];
         currentIndex = 0;
         announcedStops.clear();
+        clearStopMarkers();
+        
+        // Add markers for each stop
+        currentRoute.stops.forEach((stop, i) => {
+            const sm = L.circleMarker([stop[1], stop[2]], {
+                radius: 8,
+                fillColor: '#87CEEB', // Start Light Blue
+                color: '#fff',
+                weight: 2,
+                fillOpacity: 0.9
+            }).addTo(map);
+            stopMarkers.push(sm);
+        });
+
         document.getElementById('header-route-num').innerText = currentRoute.num;
         document.getElementById('header-route-name').innerText = currentRoute.name;
         document.getElementById('status-label').innerText = "Next Stop";
@@ -190,6 +216,7 @@
     function endRoute() {
         currentIndex = -1;
         currentRoute = null;
+        clearStopMarkers();
         document.getElementById('current-stop-name').innerText = "Route Ended";
         document.getElementById('header-route-num').innerText = "--";
         document.getElementById('header-route-name').innerText = "Standby";
@@ -205,15 +232,10 @@
             btn.classList.add('gps-active');
             watchId = navigator.geolocation.watchPosition(pos => {
                 const { latitude, longitude } = pos.coords;
-                // Move marker to exact device location
                 deviceMarker.setLatLng([latitude, longitude]);
                 map.panTo([latitude, longitude]);
-                
                 if (currentRoute) checkProximity(latitude, longitude);
-            }, (err) => {
-                console.error("GPS Error: ", err);
-                alert("Please enable location services on your device.");
-            }, {enableHighAccuracy: true, maximumAge: 0, timeout: 5000});
+            }, null, {enableHighAccuracy: true, maximumAge: 0, timeout: 5000});
         } else {
             gpsActive = false;
             btn.innerText = "ENABLE DEVICE GPS";
@@ -227,7 +249,7 @@
             const stop = currentRoute.stops[i];
             const dist = Math.sqrt(Math.pow(lat - stop[1], 2) + Math.pow(lon - stop[2], 2));
             
-            // Announcement distance: ~0.0018 (~180 meters) for "plenty of time"
+            // Proximity ~180m
             if (dist < 0.0018 && !announcedStops.has(i)) {
                 currentIndex = i;
                 announcedStops.add(i);
@@ -247,12 +269,14 @@
         currentRoute.stops.forEach((stop, i) => {
             const item = document.createElement('div');
             item.className = `timeline-item ${i === currentIndex ? 'next' : ''}`;
-            if (i < currentIndex) item.style.opacity = "0.05";
+            if (i < currentIndex) {
+                item.style.opacity = "0.05";
+                if(stopMarkers[i]) stopMarkers[i].setStyle({fillColor: '#00FF00'}); // Green for passed
+            }
             item.innerHTML = `<div class="dot"></div><div class="stop-text">${stop[0]}</div>`;
             container.appendChild(item);
         });
         
-        // Auto-scroll the timeline to keep current stop visible
         const activeItem = container.querySelector('.next');
         if (activeItem) activeItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
