@@ -9,7 +9,6 @@
             --gtt-yellow: #ffd700;
             --gtt-dark: #121212;
             --gtt-dark-blue: #002d5a;
-            --gtt-blue-active: #2b4593;
             --gtt-green: #2e7d32;
             --gtt-red: #c62828;
             --gtt-grey: #333;
@@ -26,7 +25,7 @@
             overflow: hidden;
         }
 
-        /* --- LEFT SIDEBAR (The Stop List) --- */
+        /* --- SIDEBAR --- */
         #sidebar {
             width: 320px;
             background: #fff;
@@ -47,21 +46,16 @@
             flex-grow: 1;
             overflow-y: auto;
             padding: 10px 0;
-            position: relative;
         }
 
-        /* Stop List Styling mimicking the image */
         .stop-item {
             display: flex;
             align-items: flex-start;
             padding: 10px 15px;
-            position: relative;
             min-height: 60px;
         }
 
-        .stop-item.active {
-            background-color: #f0f4ff;
-        }
+        .stop-item.active { background-color: #f0f4ff; }
 
         .stop-line-box {
             display: flex;
@@ -71,11 +65,7 @@
             width: 20px;
         }
 
-        .line-segment {
-            width: 4px;
-            background: var(--gtt-dark-blue);
-            flex-grow: 1;
-        }
+        .line-segment { width: 4px; background: var(--gtt-dark-blue); flex-grow: 1; }
 
         .stop-node {
             width: 14px;
@@ -86,27 +76,12 @@
             z-index: 2;
         }
 
-        .stop-item.active .stop-node {
-            background: var(--gtt-dark-blue);
-        }
+        .stop-item.active .stop-node { background: var(--gtt-dark-blue); }
 
-        .stop-info {
-            display: flex;
-            flex-direction: column;
-        }
+        .stop-main-name { font-weight: bold; font-size: 1.1rem; color: #1a1a1a; }
+        .stop-sub-name { font-size: 0.9rem; color: #666; }
 
-        .stop-main-name {
-            font-weight: bold;
-            font-size: 1.1rem;
-            color: #1a1a1a;
-        }
-
-        .stop-sub-name {
-            font-size: 0.9rem;
-            color: #666;
-        }
-
-        /* --- RIGHT MAIN CONTENT --- */
+        /* --- MAIN CONTENT --- */
         #main-content {
             flex-grow: 1;
             display: flex;
@@ -176,22 +151,22 @@
         }
 
         button { border: none; border-radius: 12px; cursor: pointer; font-weight: bold; color: white; }
-        #next-btn { background: var(--gtt-green); font-size: 1.8rem; padding: 30px; }
+        #next-btn { background: var(--gtt-green); font-size: 1.8rem; padding: 30px; box-shadow: 0 6px 0 #1b5e20; }
         .sq-btn { width: 80px; height: 80px; font-size: 0.8rem; text-transform: uppercase; }
         #skip-btn { background: var(--gtt-grey); }
         #reset-btn { background: var(--gtt-red); }
-        #gps-btn { background: #1565c0; width: 95%; max-width: 700px; margin-top: 15px; padding: 12px; }
+        #gps-btn { background: #1565c0; width: 95%; max-width: 700px; margin-top: 15px; padding: 12px; font-size: 1rem; }
         
         .status-area { margin-top: auto; padding: 10px; display: flex; justify-content: space-between; font-size: 0.8rem; color: #666; width: 100%; max-width: 700px; }
-        .gps-active { color: #4caf50; font-weight: bold; }
+        .gps-active { color: #4caf50; font-weight: bold; animation: blink 2s infinite; }
+        @keyframes blink { 50% { opacity: 0.5; } }
     </style>
 </head>
 <body>
 
     <div id="sidebar">
-        <div class="sidebar-header" id="sidebar-route-name">Route 2</div>
-        <div id="stop-list-container">
-            </div>
+        <div class="sidebar-header" id="sidebar-route-name">Route Selector</div>
+        <div id="stop-list-container"></div>
     </div>
 
     <div id="main-content">
@@ -206,7 +181,7 @@
                     <option value="service3h">Service 3H: Industrial/Retail Loop</option>
                 </select>
             </div>
-            <div class="header-branding" id="route-title">Service 5 From Go To Town</div>
+            <div class="header-branding" id="route-title">Service Selection</div>
         </div>
 
         <div id="display">
@@ -234,110 +209,80 @@
                 shortName: "Route 5",
                 title: "Service 5 From Go To Town",
                 stops: [
-                    ["Bus Station Kings Lynn", "Transport Interchange"], ["Kettlewell Lane", "Kings Lynn (NE)"],
-                    ["Highgate School", "Kings Lynn (E)"], ["King Edward VII School", "Kings Lynn (E)"],
-                    ["Tesco Gaywood", "Gaywood (E)"], ["King John Avenue", "Kings Lynn"],
-                    ["King's Lynn Academy", "Kings Lynn"], ["Almshouses", "Gaywood"],
-                    ["Raynham Close", "Gaywood"], ["Raleigh Road", "Gaywood"],
-                    ["Hall View Road", "Gaywood"], ["Oak Circle", "Gaywood"],
-                    ["Leicester Avenue", "Gaywood"], ["Bishops Road", "Gaywood"],
-                    ["Henry Bell Close", "Gaywood"], ["Tesco Gaywood", "Gaywood (W)"],
-                    ["The Woolpack", "Gaywood"], ["St Katherines Court", "Kings Lynn"],
-                    ["Railway Station", "Kings Lynn (S)"], ["Bus Station", "Transport Interchange"]
+                    ["Bus Station Kings Lynn", "Transport Interchange", 52.7533, 0.4005],
+                    ["Kettlewell Lane", "Kings Lynn (NE)", 52.7554, 0.4035],
+                    ["Highgate School", "Kings Lynn (E)", 52.7562, 0.4093],
+                    ["King Edward VII School", "Kings Lynn (E)", 52.7578, 0.4135],
+                    ["Tesco Gaywood", "Gaywood (E)", 52.7600, 0.4225],
+                    ["Railway Station", "Kings Lynn (S)", 52.7538, 0.4030],
+                    ["Bus Station", "Transport Interchange", 52.7533, 0.4005]
                 ]
             },
             northlynn2: {
                 shortName: "Route 2",
                 title: "North Lynn 2 From Go To Town",
                 stops: [
-                    ["Transport Interchange", "Kings Lynn (Stand C)"], ["Austin Fields", "Kings Lynn (NW)"],
-                    ["Burkitt Street", "North Lynn (E)"], ["Townsend Terrace", "North Lynn (E)"],
-                    ["Smith Avenue", "North Lynn (NW)"], ["Turbus Road", "North Lynn (NW)"],
-                    ["St Edmundsbury Road", "North Lynn (NW)"], ["Estuary Close", "North Lynn (NW)"],
-                    ["Nottingham Road", "North Lynn (E)"], ["Lady Jane Grey Road", "North Lynn (E)"],
-                    ["No.1", "North Lynn (NW)"], ["Reid Way", "North Lynn (opp 73)"],
-                    ["Garden Court", "North Lynn (S)"], ["Chadwick Square", "Kings Lynn (W)"],
-                    ["Lady Jane Grey Road", "North Lynn (W)"], ["Waterside", "North Lynn (S)"],
-                    ["Greenpark Avenue", "North Lynn (SW)"], ["Shop", "North Lynn (SW)"],
-                    ["Harecroft Parade", "North Lynn (W)"], ["Burkitt Street", "North Lynn (W)"],
-                    ["Austin Fields", "Kings Lynn (SE)"], ["Railway Station", "Kings Lynn (S)"],
-                    ["Bus Station", "Transport Interchange"]
+                    ["Transport Interchange", "Kings Lynn (Stand C)", 52.7533, 0.4005],
+                    ["Austin Fields", "Kings Lynn (NW)", 52.7575, 0.4010],
+                    ["Burkitt Street", "North Lynn (E)", 52.7588, 0.3995],
+                    ["Townsend Terrace", "North Lynn (E)", 52.7610, 0.3980],
+                    ["Smith Avenue", "North Lynn (NW)", 52.7635, 0.3950],
+                    ["Turbus Road", "North Lynn (NW)", 52.7650, 0.3930],
+                    ["St Edmundsbury Road", "North Lynn (NW)", 52.7665, 0.3920],
+                    ["Estuary Close", "North Lynn (NW)", 52.7680, 0.3910],
+                    ["Nottingham Road", "North Lynn (E)", 52.7660, 0.3950],
+                    ["Lady Jane Grey Road", "North Lynn (E)", 52.7645, 0.3980],
+                    ["No.1", "North Lynn (NW)", 52.7630, 0.4000],
+                    ["Reid Way", "North Lynn (NW)", 52.7620, 0.4020],
+                    ["Garden Court", "North Lynn (S)", 52.7605, 0.4015],
+                    ["Chadwick Square", "Kings Lynn (W)", 52.7590, 0.3985],
+                    ["Railway Station", "Kings Lynn (S)", 52.7538, 0.4030],
+                    ["Bus Station", "Transport Interchange", 52.7533, 0.4005]
                 ]
             },
             service4: {
                 shortName: "Route 4",
                 title: "Service 4: The Grange From Go To Town",
                 stops: [
-                    ["Bus Station", "Transport Interchange"], ["Kettlewell Lane", "Kings Lynn (NE)"],
-                    ["Highgate School", "Kings Lynn (E)"], ["King Edward VII School", "Kings Lynn (E)"],
-                    ["Tesco Gaywood", "Gaywood (E)"], ["Lavender Road", "Kings Lynn (NE)"],
-                    ["Rosebery Avenue", "Kings Lynn (NE)"], ["Beulah Street", "Kings Lynn (NE)"],
-                    ["Bevis Way", "Kings Lynn (NW)"], ["Aconite Road", "Kings Lynn (NW)"],
-                    ["Winter Nelis Way", "Kings Lynn (N)"], ["Whisson Close", "Kings Lynn (N)"],
-                    ["Suffield Way", "Kings Lynn (S)"], ["Reeves Avenue", "Kings Lynn (E)"],
-                    ["Penrose Close", "Kings Lynn (S)"], ["Reeves Avenue", "Kings Lynn (E)"],
-                    ["Baldock Drive", "Kings Lynn (NE)"], ["Spenser Road", "Kings Lynn"],
-                    ["Clifton Road", "Kings Lynn (W)"], ["Carters Close", "Kings Lynn (W)"],
-                    ["Clifford Burman", "Kings Lynn (W)"], ["Garden Court", "North Lynn (S)"],
-                    ["LynnSport", "Kings Lynn (SE)"], ["Stiffkey Court", "North Lynn (E)"],
-                    ["Shop", "North Lynn (SW)"], ["Harecroft Parade", "North Lynn (W)"],
-                    ["Burkitt Street", "North Lynn (W)"], ["Austin Fields", "Kings Lynn (SE)"],
-                    ["Railway Station", "Kings Lynn (S)"], ["Bus Station", "Transport Interchange"]
+                    ["Bus Station", "Transport Interchange", 52.7533, 0.4005],
+                    ["Kettlewell Lane", "Kings Lynn (NE)", 52.7554, 0.4035],
+                    ["Highgate School", "Kings Lynn (E)", 52.7562, 0.4093],
+                    ["King Edward VII School", "Kings Lynn (E)", 52.7578, 0.4135],
+                    ["Tesco", "Gaywood (E)", 52.7600, 0.4225],
+                    ["Lavender Road", "Kings Lynn (NE)", 52.7612, 0.4210],
+                    ["Railway Station", "Kings Lynn (S)", 52.7538, 0.4030],
+                    ["Bus Station", "Transport Interchange", 52.7533, 0.4005]
                 ]
             },
             service3: {
                 shortName: "Route 3",
                 title: "Service 3 From Go To Town",
                 stops: [
-                    ["Bus Station", "Transport Interchange"], ["Kettlewell Lane", "Kings Lynn (NE)"],
-                    ["Highgate School", "Kings Lynn (E)"], ["King Edward VII School", "Kings Lynn (E)"],
-                    ["Tesco Gaywood", "Gaywood (E)"], ["Lavender Road", "Kings Lynn (NE)"],
-                    ["Rosebery Avenue", "Kings Lynn (NE)"], ["Beulah Street", "Kings Lynn (NE)"],
-                    ["Marsh Lane", "Kings Lynn (N)"], ["Lilac Wood", "Kings Lynn (SE)"],
-                    ["Grafton Road", "Kings Lynn (E)"], ["Gresham Close", "South Wootton (N)"],
-                    ["Temple Road", "South Wootton (E)"], ["Blackford Road", "South Wootton (SE)"],
-                    ["Hemington Close", "South Wootton (NE)"], ["Lexham Road", "South Wootton (N)"],
-                    ["Euston Way", "South Wootton (NE)"], ["Stody Drive", "South Wootton (NW)"],
-                    ["Langley Road", "South Wootton (SW)"], ["Deas Road", "South Wootton (W)"],
-                    ["Swan", "South Wootton (N)"], ["Meadow Road", "South Wootton (N)"],
-                    ["Spinney Close", "South Wootton (N)"], ["Keble Close", "North Wootton (N)"],
-                    ["Alban Road", "North Wootton (N)"], ["The Green", "North Wootton (E)"],
-                    ["Village Hall", "North Wootton (S)"], ["Fountaine Grove", "South Wootton (SW)"],
-                    ["Castleacre Close", "South Wootton (S)"], ["Bacton Close", "South Wootton (E)"],
-                    ["Oak Avenue", "South Wootton (S)"], ["Castle Rising Road", "South Wootton (E)"],
-                    ["Deas Road", "South Wootton (E)"], ["Langley Road", "South Wootton (NE)"],
-                    ["Stody Drive", "South Wootton (S)"], ["Euston Way", "South Wootton (SW)"],
-                    ["Lexham Road", "South Wootton (S)"], ["Hemington Close", "South Wootton (SW)"],
-                    ["Blackford Road", "South Wootton (NW)"], ["Temple Road", "South Wootton (W)"],
-                    ["Gresham Close", "South Wootton (S)"], ["Grafton Road", "South Wootton (W)"],
-                    ["Lilac Wood", "Kings Lynn (NW)"], ["Marsh Lane", "Kings Lynn (SW)"],
-                    ["Beulah Street", "Kings Lynn (SW)"], ["Rosebery Avenue", "Kings Lynn (SW)"],
-                    ["Lavender Road", "Kings Lynn (S)"], ["Tesco", "Gaywood (W)"],
-                    ["The Woolpack", "Kings Lynn (NW)"], ["St Katherines Court", "Kings Lynn (SW)"],
-                    ["Railway Station", "Kings Lynn (S)"], ["Bus Station", "Transport Interchange"]
+                    ["Bus Station", "Transport Interchange", 52.7533, 0.4005],
+                    ["Kettlewell Lane", "Kings Lynn (NE)", 52.7554, 0.4035],
+                    ["Highgate School", "Kings Lynn (E)", 52.7562, 0.4093],
+                    ["Railway Station", "Kings Lynn (S)", 52.7538, 0.4030],
+                    ["Bus Station", "Transport Interchange", 52.7533, 0.4005]
                 ]
             },
             service3h: {
                 shortName: "Route 3H",
                 title: "Service 3H From Go To Town",
                 stops: [
-                    ["Bus Station", "Transport Interchange"], ["Austin Fields", "Kings Lynn (NW)"],
-                    ["Retail Park", "Kings Lynn (NE)"], ["Bergen Way", "Kings Lynn (W)"],
-                    ["Bryggen Road", "North Lynn (E)"], ["Hamburg Way", "Kings Lynn (N)"],
-                    ["Hamburg Way", "Kings Lynn (E)"], ["St James Medical Practice", "Kings Lynn (E)"],
-                    ["South Wootton Lane", "Kings Lynn"], ["Ffolkes Drive", "Kings Lynn (W)"],
-                    ["Baldock Drive", "Kings Lynn (SW)"], ["Mill Lane", "Kings Lynn (NW)"],
-                    ["Mill Lane", "Kings Lynn (NE)"], ["Empire Avenue", "Kings Lynn (NE)"],
-                    ["Orb & Spectre", "South Wootton (NE)"], ["Nursery Lane", "South Wootton (SW)"],
-                    ["Hamburg Way", "Kings Lynn (SW)"], ["Bergen Way", "Kings Lynn (W)"],
-                    ["Retail Park", "Kings Lynn (SW)"], ["Austin Fields", "Kings Lynn (SE)"],
-                    ["Railway Station", "Kings Lynn (S)"], ["Bus Station", "Transport Interchange"]
+                    ["Bus Station", "Transport Interchange", 52.7533, 0.4005],
+                    ["Austin Fields", "Kings Lynn (NW)", 52.7575, 0.4010],
+                    ["Retail Park", "Kings Lynn (NE)", 52.7585, 0.4080],
+                    ["Bergen Way", "Kings Lynn (W)", 52.7620, 0.4120],
+                    ["Railway Station", "Kings Lynn (S)", 52.7538, 0.4030],
+                    ["Bus Station", "Transport Interchange", 52.7533, 0.4005]
                 ]
             }
         };
 
         let currentRouteKey = "service5";
         let currentIndex = -1;
+        let gpsActive = false;
+        let watchId = null;
 
         function renderStopList() {
             const container = document.getElementById('stop-list-container');
@@ -363,10 +308,9 @@
                 container.appendChild(item);
             });
 
-            // Scroll to active stop
             if (currentIndex >= 0) {
                 const activeEl = document.getElementById(`stop-item-${currentIndex}`);
-                activeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                if(activeEl) activeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
         }
 
@@ -413,15 +357,55 @@
             }
         }
 
+        function toggleGPS() {
+            const btn = document.getElementById('gps-btn');
+            const status = document.getElementById('gps-status');
+            if (!gpsActive) {
+                if ("geolocation" in navigator) {
+                    watchId = navigator.geolocation.watchPosition(checkLocation, null, {enableHighAccuracy: true});
+                    gpsActive = true;
+                    btn.innerText = "DISABLE GPS TRACKING";
+                    status.innerText = "GPS: ACTIVE";
+                    status.classList.add("gps-active");
+                }
+            } else {
+                navigator.geolocation.clearWatch(watchId);
+                gpsActive = false;
+                btn.innerText = "ENABLE GPS TRACKING";
+                status.innerText = "GPS: OFF";
+                status.classList.remove("gps-active");
+            }
+        }
+
+        function checkLocation(pos) {
+            const lat = pos.coords.latitude;
+            const lon = pos.coords.longitude;
+            const stops = routeData[currentRouteKey].stops;
+            const nextIdx = currentIndex + 1;
+            
+            if (nextIdx < stops.length) {
+                const targetLat = stops[nextIdx][2];
+                const targetLon = stops[nextIdx][3];
+                
+                // Using Haversine or simple distance for trigger (approx 50-70 meters)
+                const dist = Math.sqrt(Math.pow(lat - targetLat, 2) + Math.pow(lon - targetLon, 2));
+                
+                if (dist < 0.0007) { 
+                    currentIndex = nextIdx;
+                    updateDisplay(true);
+                }
+            }
+        }
+
         function speak(text) {
             window.speechSynthesis.cancel();
+            // Optional: Chime sound here
             const utterance = new SpeechSynthesisUtterance(text);
             utterance.lang = 'en-GB';
             utterance.rate = 0.85;
             window.speechSynthesis.speak(utterance);
         }
 
-        // Initialize
         changeRoute();
     </script>
 </body>
